@@ -308,7 +308,7 @@ class DLM_Admin_Extensions {
 						<div class="features">
 							<div class="block">
 								<div class='wp-clearfix'>
-									<ul class='subsubsub dlm-settings-sub-nav dlm-extension-filtering'>
+									<ul class='dlm-settings-sub-nav dlm-extension-filtering'>
 										<li class='active-section'>
 											<a id='all-extensions'><?php
 												esc_html_e( 'All', 'download-monitor' ); ?></a>
@@ -331,6 +331,11 @@ class DLM_Admin_Extensions {
 								foreach ( $this->extensions as $extension ) {
 									if ( 'dlm-pro' === $extension->product_id ) {
 										continue;
+									}
+
+									if ( 'dlm-page-addon' === $extension->product_id ) {
+										$extension->name = __( 'Document Library Manager (Page Addon)', 'download-monitor' );
+										$extension->desc = __( 'Easily show off your downloads in a clean table or a stylish grid. This add-on gives you a simple, modern tool to organize your files and help your visitors find exactly what they need — fast.', 'download-monitor' );
 									}
 									$welcome->display_extension( $extension->name, wp_kses_post( $extension->desc ), $extension->image, true, '#F08232', $extension->name );
 								}

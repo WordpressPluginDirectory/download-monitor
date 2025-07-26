@@ -66,77 +66,78 @@ if ( ! class_exists( 'DLM_Settings_Page' ) ) {
 				switch ( $action ) {
 					case 'dlm_regenerate_protection':
 						if ( $this->regenerate_protection() ) {
-							wp_redirect( add_query_arg( array( 'dlm_action_done' => $action ), admin_url( 'edit.php?post_type=dlm_download&page=download-monitor-settings&tab=status&section=misc' ) ) );
+							$this->display_admin_action_message( $action );
+							wp_safe_redirect( admin_url( 'edit.php?post_type=dlm_download&page=download-monitor-settings&tab=status&section=misc' ) );
 							exit;
 						}
 						break;
 					case 'dlm_regenerate_robots':
 						if ( $this->regenerate_robots() ) {
-							wp_redirect( add_query_arg( array( 'dlm_action_done' => $action ), admin_url( 'edit.php?post_type=dlm_download&page=download-monitor-settings&tab=general&section=misc' ) ) );
+							$this->display_admin_action_message( $action );
+							wp_safe_redirect( admin_url( 'edit.php?post_type=dlm_download&page=download-monitor-settings&tab=general&section=misc' ) );
 							exit;
 						}
 						break;
 				}
 			}
 
-			if ( isset( $_GET['dlm_action_done'] ) ) {
-				add_action( 'admin_notices', array( $this, 'display_admin_action_message' ), 8 );
-			}
-
 			$screen = get_current_screen();
 
-			if ( $screen->base == 'dlm_download_page_download-monitor-settings' ) {
+			if ( 'dlm_download_page_download-monitor-settings' === $screen->base ) {
 				$ep_value   = get_option( 'dlm_download_endpoint' );
 				$page_check = get_page_by_path( $ep_value, 'ARRAY_A', array( 'page', 'post' ) );
 				$cpt_check  = post_type_exists( $ep_value );
 
 				if ( $page_check || $cpt_check ) {
-					add_action( 'admin_notices', array( $this, 'display_admin_invalid_ep' ), 8 );
+					$notice = array(
+						'title'       => esc_html__( 'Endpoint already in use!', 'download-monitor' ),
+						// translators: %s is replaced with the endpoint.
+						'message'     => sprintf( esc_html__( 'The Download Monitor endpoint "%s" is already in use by a page or post. Please change the endpoint to something else.', 'download-monitor' ), get_option( 'dlm_download_endpoint' ) ),
+						'status'      => 'error',
+						'source'      => array(
+							'slug' => 'download-monitor',
+							'name' => 'Download Monitor',
+						),
+						'dismissible' => false,
+					);
+
+					WPChill_Notifications::add_notification( 'dlm-endpoint-in-use', $notice );
+				} else {
+					WPChill_Notifications::remove_notification( 'dlm-endpoint-in-use' );
 				}
 			}
 		}
 
 		/**
-		 * Display the admin action success mesage
+		 * Display the admin action success message
 		 */
-		public function display_admin_action_message() {
-			// Check if we have a message to display
-			if ( ! isset( $_GET['dlm_action_done'] ) ) {
-				return;
+		public function display_admin_action_message( $action ) {
+
+			$notice = array(
+				'status' => 'success',
+				'source' => array(
+					'slug' => 'download-monitor',
+					'name' => 'Download Monitor',
+				),
+				'timed'  => 5000,
+			);
+
+			switch ( $action ) {
+				case 'dlm_regenerate_protection':
+					$notice['title']   = esc_html__( 'Regenerated .htaccess file', 'download-monitor' );
+					$notice['message'] = esc_html__( '.htaccess file successfully regenerated!', 'download-monitor' );
+					break;
+				case 'dlm_regenerate_robots':
+					$notice['title']   = esc_html__( 'Regenerated robots.txt', 'download-monitor' );
+					$notice['message'] = esc_html__( 'Robots.txt file successfully regenerated!', 'download-monitor' );
+					break;
+				default:
+					$notice['title']   = esc_html__( 'Action completed', 'download-monitor' );
+					$notice['message'] = esc_html__( 'Download Monitor action completed!', 'download-monitor' );
+					break;
 			}
 
-			?>
-			<div
-				class="notice notice-success">
-				<?php
-				// Cycle through actions and echo correct message
-				switch ( $_GET['dlm_action_done'] ) {
-					case 'dlm_regenerate_protection':
-						echo "<p>" . esc_html__( '.htaccess file successfully regenerated!', 'download-monitor' ) . "</p>";
-						break;
-					case 'dlm_regenerate_robots':
-						echo "<p>" . esc_html__( 'Robots.txt file successfully regenerated!', 'download-monitor' ) . "</p>";
-						break;
-					default:
-						echo "<p>" . esc_html__( 'Download Monitor action completed!', 'download-monitor' ) . "</p>";
-						break;
-				}
-				?>
-			</div>
-			<?php
-		}
-
-		/**
-		 * Endpoint invalid admin notice
-		 */
-		public function display_admin_invalid_ep() {
-			?>
-			<div
-				class="notice notice-error">
-				<p><?php
-					echo esc_html__( 'The Download Monitor endpoint is already in use by a page or post. Please change the endpoint to something else.', 'download-monitor' ); ?></p>
-			</div>
-			<?php
+			WPChill_Notifications::add_notification( str_replace( '_', '-', $action ), $notice );
 		}
 
 		/**
@@ -194,7 +195,7 @@ if ( ! class_exists( 'DLM_Settings_Page' ) ) {
 							?>
 							<div
 								class="wp-clearfix">
-								<ul class="subsubsub dlm-settings-sub-nav">
+								<ul class="dlm-settings-sub-nav">
 									<?php
 									foreach ( $settings[ $tab ]['sections'] as $section_key => $section ) : ?>
 										<?php

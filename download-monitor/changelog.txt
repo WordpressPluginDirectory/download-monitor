@@ -1,3 +1,37 @@
+= 5.0.30 - 25.07.2025 =
+Fixed: Downloads without a default WPML language were not showing in the admin table.
+
+= 5.0.29 - 23.07.2025 =
+Fixed: Compatibility with Admin Columns plugin.
+
+= 5.0.28 - 22.07.2025 =
+Added: Made the plugin fully translatable with WPML.
+
+= 5.0.27 - 08.07.2025 =
+Fixed: Expired cookies were not cleared from cookie data tables.
+
+= 5.0.26 - 20.06.2025 =
+Changed: Updated label of Page Addon to Document Library Manager
+
+= 5.0.25 - 05.06.2025 =
+Fixed: Set the Secure attribute on the PHPSESSID cookie for the session started by DLM.
+
+= 5.0.24 - 26.05.2025 -
+Added: New filters to allow preventing session initialization when necessary.
+Fixed: Issue causing license deactivation during scheduled weekly checks.
+
+= 5.0.23 - 22.04.2025 -
+Fixed: License was being deactivated for single product licenses.
+Fixed: Security update
+
+= 5.0.22 - 17.03.2025 -
+Added: Integrated WPChill Notification System.
+
+= 5.0.21 - 20.01.2025 =
+Fixed: Media Library protected files placeholder bug ( [#1622](https://github.com/WPChill/download-monitor/issues/1622) )
+Fixed: Media Library Protect function incorrect file path ( [#1623](https://github.com/WPChill/download-monitor/issues/1623) )
+Added: New filter for Cookie path ( [#1626](https://github.com/WPChill/download-monitor/issues/1626) )
+
 = 5.0.20 - 08.01.2025 =
 Fixed: Short description was hidden in certain situations ( [#1618](https://github.com/WPChill/download-monitor/issues/1618) )
 
