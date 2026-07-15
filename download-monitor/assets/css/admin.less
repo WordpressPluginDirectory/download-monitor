@@ -1123,6 +1123,10 @@ table.wp-list-table {
 	  flex-grow: 1;
 	  width: calc(100% - 45px);
 	}
+
+	.copy-dlm-button {
+		padding: 0;
+	}
   }
 }
 
@@ -1321,7 +1325,13 @@ table.wp-list-table {
   #drag-drop-area {
 	margin: 1em 0;
   }
-
+	.dlm-media-insert-button{
+		background: #2271b1;
+		border-color: #2271b1;
+		color: #fff;
+		text-decoration: none;
+		text-shadow: none;
+	}
   .updated,
   .error {
 	margin-left: 0;
@@ -1336,6 +1346,11 @@ table.wp-list-table {
 	margin: 0 0 .25em 0;
 	display: block;
 	font-size: 1.1em;
+
+  input[type="radio"]:checked::before {
+	background: #2271b1 !important;
+	border-color: #2271b1 !important;
+  }
   }
 
   span.description {
@@ -2815,7 +2830,11 @@ table.wp-list-table {
   }
 
   a.button {
+	&:not(:last-child){
 	margin-right: 10px;
+	}
+
+	padding: 0 12px;
   }
 
 }
@@ -4001,13 +4020,17 @@ div#dlm-export-settings-upsell {
 	}
   }
 }
+.post-type-dlm_download {
+	.wpchill-tooltip-button.copy-dlm-shortcode {
+	line-height: 13px;
 
-.wpchill-tooltip-button.copy-dlm-shortcode {
-  line-height: 13px;
-
-  .dashicons {
-	font-size: 17px;
-  }
+	.dashicons {
+		font-size: 17px;
+		width: 17px;
+		height: 17px;
+		line-height: 20px;
+		}
+	}
 }
 
 .file {

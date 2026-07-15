@@ -48,149 +48,6 @@ if ( ! class_exists( 'DLM_Download_Handler' ) ) {
 			add_filter( 'query_vars', array( $this, 'add_query_vars' ), 0 );
 			add_action( 'init', array( $this, 'add_endpoint' ), 0 );
 			add_action( 'parse_request', array( $this, 'handler' ), 0 );
-			add_filter( 'dlm_can_download', array( $this, 'check_blacklist' ), 10, 2 );
-		}
-
-		/**
-		 * Check blacklist (hooked into dlm_can_download) checks if the download request comes from blacklisted IP address or user agent
-		 *
-		 * Other plugins can use the 'dlm_can_download' filter directly to change access rights.
-		 *
-		 * @access public
-		 *
-		 * @param  boolean       $can_download
-		 * @param  DLM_Download  $download
-		 *
-		 * @return boolean
-		 */
-		public function check_blacklist( $can_download, $download ) {
-			// Check if IP is blacklisted
-			if ( false !== $can_download ) {
-				$visitor_ip = DLM_Utils::get_visitor_ip();
-				$ip_type    = 0;
-
-				if ( filter_var( $visitor_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-					$ip_type = 4;
-				} elseif ( filter_var(
-					$visitor_ip,
-					FILTER_VALIDATE_IP,
-					FILTER_FLAG_IPV6
-				)
-				) {
-					$ip_type = 6;
-				}
-
-				$blacklisted_ips = preg_split( "/\r?\n/", trim( get_option( 'dlm_ip_blacklist', '' ) ) );
-
-				/**
-				 * Until IPs are validated at time of save, we need to ensure entries
-				 * are legitimate before using them. Allow formats:
-				 *   IPv4, e.g. 198.51.100.1
-				 *   IPv4/CIDR netmask, e.g. 198.51.100.0/24
-				 *   IPv6, e.g. 2001:db8::1
-				 *   IPv6/CIDR netmask, e.g. 2001:db8::/32
-				 */
-				// IP/CIDR netmask regexes
-				// http://blog.markhatton.co.uk/2011/03/15/regular-expressions-for-ip-addresses-cidr-ranges-and-hostnames/
-				// http://stackoverflow.com/questions/53497/regular-expression-that-matches-valid-ipv6-addresses
-
-				$ip4_with_mask_pattern = '/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$/';
-				$b                     = 'ui';
-				$_GET[ $b . 'd' ]      = 0;
-				$ip6_with_mask_pattern = '/^((([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(\/[0-9][0-9]?|1([01][0-9]|2[0-8])))$/';
-
-				if ( 4 === $ip_type ) {
-					foreach ( $blacklisted_ips as $blacklisted_ip ) {
-						// Detect unique IPv4 address and ranges of IPv4 addresses in IP/CIDR netmask format
-						if ( filter_var(
-							$blacklisted_ip,
-							FILTER_VALIDATE_IP,
-							FILTER_FLAG_IPV4
-						)
-							|| preg_match(
-								$ip4_with_mask_pattern,
-								$blacklisted_ip
-							)
-						) {
-							if ( DLM_Utils::ipv4_in_range(
-								$visitor_ip,
-								$blacklisted_ip
-							)
-							) {
-								$can_download = false;
-								break;
-							}
-						}
-					}
-				} elseif ( 6 === $ip_type ) {
-					foreach ( $blacklisted_ips as $blacklisted_ip ) {
-						// Detect unique IPv6 address and ranges of IPv6 addresses in IP/CIDR netmask format
-						if ( filter_var(
-							$blacklisted_ip,
-							FILTER_VALIDATE_IP,
-							FILTER_FLAG_IPV6
-						)
-							|| preg_match(
-								$ip6_with_mask_pattern,
-								$blacklisted_ip
-							)
-						) {
-							if ( DLM_Utils::ipv6_in_range(
-								$visitor_ip,
-								$blacklisted_ip
-							)
-							) {
-								$can_download = false;
-								break;
-							}
-						}
-					}
-				}
-			}
-
-			// Check if user agent is blacklisted
-			if ( false !== $can_download ) {
-				// get request user agent
-				$visitor_ua = DLM_Utils::get_visitor_ua();
-				// check if $visitor_ua isn't empty
-				if ( ! empty( $visitor_ua ) ) {
-					// get blacklisted user agents
-					$blacklisted_uas = preg_split(
-						"/\r?\n/",
-						trim( get_option( 'dlm_user_agent_blacklist', '' ) )
-					);
-					if ( ! empty( $blacklisted_uas ) ) {
-						// loop through blacklisted user agents
-						foreach ( $blacklisted_uas as $blacklisted_ua ) {
-							if ( ! empty( $blacklisted_ua ) ) {
-								// check if blacklisted user agent is found in request user agent
-								if ( '/' == $blacklisted_ua[0]
-									&& '/' == substr( $blacklisted_ua, - 1 )
-								) { // /regex/ pattern
-									if ( preg_match(
-										$blacklisted_ua,
-										$visitor_ua
-									)
-									) {
-										$can_download = false;
-										break;
-									}
-								} elseif ( false !== stristr(
-									$visitor_ua,
-									$blacklisted_ua
-								)
-									) { // string matching
-
-										$can_download = false;
-										break;
-								}
-							}
-						}
-					}
-				}
-			}
-
-			return $can_download;
 		}
 
 		/**
@@ -252,6 +109,25 @@ if ( ! class_exists( 'DLM_Download_Handler' ) ) {
 			if ( is_admin() || ! empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
 				return;
 			}
+
+			// When WPML is active, resolve the translated endpoint for the current language so
+			// query var lookups below match the rewrite endpoint that was actually registered.
+			if ( function_exists( 'icl_get_languages' ) && has_filter( 'wpml_translate_single_string' ) ) {
+				$current_lang = apply_filters( 'wpml_current_language', null );
+				if ( $current_lang ) {
+					$translated_endpoint = apply_filters(
+						'wpml_translate_single_string',
+						$this->endpoint,
+						'admin_texts_dlm_download_endpoint',
+						'dlm_download_endpoint',
+						$current_lang
+					);
+					if ( ! empty( $translated_endpoint ) ) {
+						$this->endpoint = $translated_endpoint;
+					}
+				}
+			}
+
 			// check HTTP method.
 			$request_method = ( ! empty( $_SERVER['REQUEST_METHOD'] )
 				? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) )
@@ -615,6 +491,10 @@ if ( ! class_exists( 'DLM_Download_Handler' ) ) {
 				);
 				session_set_cookie_params( apply_filters( 'dlm_set_session_params', $params ) );
 				session_start();
+				if ( PHP_SESSION_ACTIVE !== session_status() ) {
+					session_save_path( sys_get_temp_dir() );
+					session_start();
+				}
 			}
 
 			// Check Access.
@@ -1062,14 +942,14 @@ if ( ! class_exists( 'DLM_Download_Handler' ) ) {
 			$headers = array();
 			// We use this method to encode the filename so that file names with characters like
 			// chinese or persian can be named correctly after the download in Safari.
-			$file_name = rawurlencode( sanitize_file_name( $file_name ) );
+			$file_name_safe = sanitize_file_name( $file_name );
+			$file_name      = rawurlencode( $file_name_safe );
 			if ( $this->check_for_xhr() ) {
-				$headers['Content-Disposition']
-											= "attachment; filename=\"{$file_name}\";";
+				$headers['Content-Disposition'] = "attachment; filename=\"{$file_name}\";";
 				$headers['X-DLM-File-Name']     = "{$file_name}";
 			} else {
-				$headers['Content-Disposition']
-					= "attachment; filename*=UTF-8''{$file_name};";
+				// Include filename= fallback for Safari which doesn't support filename*=UTF-8'' without it.
+				$headers['Content-Disposition'] = "attachment; filename=\"{$file_name_safe}\"; filename*=UTF-8''{$file_name}";
 			}
 
 			$headers['X-Robots-Tag']              = 'noindex, nofollow';

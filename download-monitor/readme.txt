@@ -2,8 +2,8 @@
 Contributors: wpchill, silkalns, barrykooij, mikejolley  
 Tags: download manager, file manager, digital store, ecommerce, password protection  
 Requires at least: 5.5  
-Tested up to: 6.9
-Stable tag: 5.1.11
+Tested up to: 7.0
+Stable tag: 5.2.4
 License: GPLv3  
 Requires PHP: 7.4
 
@@ -114,6 +114,57 @@ Admin hits are not counted, log out and try again!
 4. The quick add panel can be opened via a link about the post editor. This lets you quickly add a file and insert it into a post.
 
 == Changelog ==
+= 5.2.4 - 14.07.2026 =
+Fixed: Frontend CSS is now always loaded on frontend pages.
+
+= 5.2.3 - 14.07.2026 =
+Fixed: Default download template link rendering inside lists.
+
+= 5.2.2 - 10.07.2026 =
+Changed: Title and Filename download templates restored to default link styling.
+Fixed: Terms & Conditions download behavior and admin list quick edit checkbox.
+
+= 5.2.1 - 07.07.2026 =
+Improved: File browser modal updated.
+Fixed: Downloads widget chart on the dashboard showing incorrect data.
+Fixed: Download title sometimes displayed incorrectly on the Reports page.
+Fixed: PHP notice shown on some admin pages about an incorrectly enqueued script.
+Fixed: File download not working correctly on Safari.
+Improved: Download button templates now integrate better with active theme styling.
+Fixed: Various Terms & Conditions issues, including messaging and translation support.
+
+= 5.2.0 - 15.06.2026 =
+Changed: Improved frontend CSS class naming to avoid conflicts with other plugins.
+Added: Filter to show extra version fields in the download editor.
+Fixed: PHP warning related to session handling on hosts with open_basedir restrictions.
+
+= 5.1.16 - 10.06.2026 =
+Removed: Short Description meta box from download edit page.
+Removed: ID field from Download Information meta box.
+Removed: Manual download count and File Date fields from version editor.
+Added: Title validation — publishing a download without a title now shows an error notice and keeps the download as draft.
+Fixed: Debug Download meta box is now hidden by default, togglable via Screen Options.
+Fixed: Version date is preserved on save instead of being overwritten.
+Fixed: Button styles and radio button selection color in Insert Download popup.
+Fixed: WPML translated endpoint resolution for current language in download handler.
+
+= 5.1.15 - 19.05.2026 =
+Fixed: Compatibility with Divi builder. No longer loading XHR javascript in builder.
+Added: Windows Server (IIS) support for dlm_uploads directory protection via web.config using requestFiltering.
+Fixed: session_start() failure when server session directory is missing, with graceful fallback to sys_get_temp_dir().
+
+= 5.1.14 - 14.04.2026 =
+Fixed: Polylang includes language prefix and any subdirectory.
+Fixed: Error handler returns HTTP 500 instead of 404/403.
+Fixed: No-access modal missing CSS when dlm-frontend was not pre-loaded on the page
+
+= 5.1.13 - 14.04.2026 =
+Fixed: Admin styles compatibility with WordPress 7.0.
+
+= 5.1.12 - 25.03.2026 =
+Removed: Settings page sidebar upsells.
+Added: Blacklist protection upsell in settings page.
+
 = 5.1.11 - 20.03.2026 =
 Fixed: Security update.
 Fixed: WPML double language prefix in download URL.

@@ -1060,10 +1060,10 @@ class DLM_Admin_List_Table extends WP_List_Table {
 				break;
 
 			case 'shortcode':
-				echo '<button class="wpchill-tooltip-button copy-dlm-shortcode button button-primary"><span class="dashicons dashicons-shortcode"></span><div class="wpchill-tooltip-content"><span class="dlm-copy-text">' . esc_html__( 'Copy shortcode', 'download-monitor' ) . '</span><div class="dl-shortcode-copy"><code>[download id="' . absint( $item->get_id() ) . '"]</code><input type="text" readonly value="[download id=\'' . absint( $item->get_id() ) . '\']" class="dlm-copy-shortcode-input"></div></div></button>';
+				echo '<button class="wpchill-tooltip-button copy-dlm-shortcode button button-primary button-compact"><span class="dashicons dashicons-shortcode"></span><div class="wpchill-tooltip-content"><span class="dlm-copy-text">' . esc_html__( 'Copy shortcode', 'download-monitor' ) . '</span><div class="dl-shortcode-copy"><code>[download id="' . absint( $item->get_id() ) . '"]</code><input type="text" readonly value="[download id=\'' . absint( $item->get_id() ) . '\']" class="dlm-copy-shortcode-input"></div></div></button>';
 				break;
 			case 'download_link':
-				echo '<button class="wpchill-tooltip-button copy-dlm-shortcode button button-primary"><span class="dashicons dashicons-admin-links"></span><div class="wpchill-tooltip-content"><span class="dlm-copy-text">' . esc_html__( 'Copy download link', 'download-monitor' ) . '</span><div class="dl-shortcode-copy">' . esc_url( $item->get_the_download_link() ) . '<input type="text" readonly value="' . esc_url( $item->get_the_download_link() ) . '" class="dlm-copy-shortcode-input"></div></div></button>';
+				echo '<button class="wpchill-tooltip-button copy-dlm-shortcode button button-primary button-compact"><span class="dashicons dashicons-admin-links"></span><div class="wpchill-tooltip-content"><span class="dlm-copy-text">' . esc_html__( 'Copy download link', 'download-monitor' ) . '</span><div class="dl-shortcode-copy">' . esc_url( $item->get_the_download_link() ) . '<input type="text" readonly value="' . esc_url( $item->get_the_download_link() ) . '" class="dlm-copy-shortcode-input"></div></div></button>';
 				break;
 			case 'download_count':
 				echo number_format( $item->get_download_count(), 0, '.', ',' );
@@ -2030,14 +2030,6 @@ class DLM_Admin_List_Table extends WP_List_Table {
 					'name'     => __( 'Downloads', 'download-monitor' ),
 					'url'      => admin_url( 'edit.php?post_type=dlm_download' ),
 					'priority' => '1',
-				),
-				'suggest_feature' => array(
-					'name'     => esc_html__( 'Suggest a feature',
-					                          'download-monitor' ),
-					'icon'     => 'dashicons-external',
-					'url'      => 'https://forms.gle/3igARBBzrbp6M8Fc7',
-					'target'   => '_blank',
-					'priority' => '60',
 				),
 			);
 
